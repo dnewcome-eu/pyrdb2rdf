@@ -6,11 +6,13 @@ __docformat__ = "restructuredtext"
 
 from binascii import hexlify as _bytes2hexstr, unhexlify as _hexstr2bytes
 from datetime import timedelta as _timedelta
-from urllib import quote as _pct_encoded
+from urllib.parse import quote as _pct_encoded
 
 import rdflib as _rdf
 import spruce.datetime as _sdt
 import sqlalchemy as _sqla
+
+unicode = str
 
 
 def canon_rdf_datatype_from_sql(sql_type):
@@ -71,9 +73,10 @@ def _canon_rdf_datatype_from_sql(sql_type):
     try:
         return _CANON_RDF_DATATYPE_BY_SQL_TYPE[sql_type]
     except KeyError:
-        datatype = _canon_rdf_datatype_from_sql(sql_type.__mro__[1])
-        _CANON_RDF_DATATYPE_BY_SQL_TYPE[sql_type] = datatype
-        return datatype
+        if len(sql_type.__mro__) > 1:
+            datatype = _canon_rdf_datatype_from_sql(sql_type.__mro__[1])
+            _CANON_RDF_DATATYPE_BY_SQL_TYPE[sql_type] = datatype
+            return datatype
 
 
 def _rdf_datatypes_from_sql(sql_type):

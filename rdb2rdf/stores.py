@@ -13,7 +13,7 @@ from functools import partial as _partial, reduce as _reduce
 import json as _json
 from operator import add as _add
 import re as _re
-from urllib import unquote as _pct_decoded
+from urllib.parse import unquote as _pct_decoded
 
 import rdflib as _rdf
 from spruce.collections import frozendict as _frozendict
@@ -141,7 +141,7 @@ class DirectMapping(_rdf.store.Store):
 
         return len_
 
-    def add(self, (subject, predicate, object), context=None, quoted=False):
+    def add(self, subject, predicate, object, context=None, quoted=False):
 
         # FIXME
 
@@ -288,7 +288,7 @@ class DirectMapping(_rdf.store.Store):
         except KeyError:
             return None
 
-    def remove(self, (subject, predicate, object), context=None):
+    def remove(self, subject, predicate, object, context=None):
 
         # FIXME
 
@@ -300,10 +300,9 @@ class DirectMapping(_rdf.store.Store):
 
     transaction_aware = True
 
-    def triples(self, (subject_pattern, predicate_pattern, object_pattern),
-                context=None):
-
+    def triples(self, pattern, context=None):
         """Match triples.
+
 
         :param subject_pattern:
             Match triples' subjects against this pattern as follows:
@@ -370,6 +369,8 @@ class DirectMapping(_rdf.store.Store):
                      or :class:`rdflib.DateRange`)]
 
         """
+
+        subject_pattern, predicate_pattern, object_pattern = pattern
 
         if context is not None \
                and not (isinstance(context, _rdf.Graph)
